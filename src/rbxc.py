@@ -43,6 +43,7 @@ def test(file_path, c):
         iserrors = os.system("g++ -fsyntax-only " + file_path)
     if iserrors != 0:
         sys.exit(1)
+
 #### GENERATOR ####
 class NodeVisitor(object):
     def __init__(self):
