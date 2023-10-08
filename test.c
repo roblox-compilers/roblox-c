@@ -1,4 +1,6 @@
+#include "src/rbx.h"
+
 int main(){
-    printf("Hello World!\n");
+    print("Hello World!\n");
     return 0;
 }
