@@ -21,7 +21,7 @@ try:
 except ImportError:
     error("libclang could not be resolved")
     
-#### COMPILER ####
+#### COMPILER PARSER ####
 def get_ast(file_path, c):
     test(file_path, c)
     try:
@@ -43,7 +43,42 @@ def test(file_path, c):
         iserrors = os.system("g++ -fsyntax-only " + file_path)
     if iserrors != 0:
         sys.exit(1)
+#### GENERATOR ####
+class NodeVisitor(object):
+    def __init__(self):
+        self.indent = 0
+        self.code = ""
+
+    ### VISITORS ###
+    def visit_translation_unit(self, node):
+        for child in node.get_children():
+            self.visit(child)
+    def visit_function_decl(self, node):
+        self.pushline("function " + node.spelling)
+        for child in node.get_children():
+            self.visit(child)
+        self.pushline(")")
+    def visit_parm_decl(self, node):
+        self.pushexp(node.spelling)
         
+    
+    
+    ### NODESYSTEM ###
+    def visit(self, node):
+        method = 'visit_' + node.kind.name.lower()
+        visitor = getattr(self, method, self.generic_visit)
+        if not getattr(visitor, 'visit_' + node.kind.name.lower(), None):
+            error('{} unsupported'.format(node.kind.name.lower()))
+            sys.exit(1)
+        return visitor(node)
+    def generic_visit(self, node):
+        for child in node.get_children():
+            self.visit(child)
+    def pushline(self, code):
+        self.code += "\n"+("\t"*self.indent)+code
+    def pushexp(self, code):
+        self.code += code
+
     
 #### INTERFACE #### 
 def check():
@@ -153,6 +188,7 @@ def main():
         
     parsed = get_ast(inputf, isC)
     print_ast(parsed)
+    NodeVisitor().visit(parsed)
     
 if __name__ == "__main__":
     main()
