@@ -37,6 +37,9 @@ def get_ast(file_path, c, check=True):
     except clang.LibclangError as e:
         error("libclang error: " + str(e))
         sys.exit(1)
+    except Exception as e:
+        error(str(e))
+        sys.exit(1)
 def print_ast(node, depth=0):
     print('  ' * depth + str(node.kind) + ' : ' + node.spelling)
     for child in node.get_children():
@@ -44,9 +47,9 @@ def print_ast(node, depth=0):
 def test(file_path, c):
     # Runs gcc on the file to check for errors, if there is an error sys.exit(1)
     if c:
-        iserrors = os.system("gcc -fsyntax-only " + file_path)
+        iserrors = os.system("gcc -fsyntax-only -DRBXCHECK=1 " + file_path)
     else:
-        iserrors = os.system("g++ -fsyntax-only " + file_path)
+        iserrors = os.system("g++ -fsyntax-only -DRBXCHECK=1 " + file_path)
     if iserrors != 0:
         sys.exit(1)
 
@@ -86,6 +89,8 @@ class NodeVisitor(object):
         else:
             self.pushline("do")
             for child in node.get_children():
+                if child.kind.name.lower() != "compound_stmt":
+                    error("main function must only have a compound statement")
                 self.visit(child)
         self.pushline("end")
     def visit_parm_decl(self, node):
@@ -127,6 +132,9 @@ class NodeVisitor(object):
             self.visit(child)
         if equal == "":
             self.newline()
+    def visit_cstyle_cast_expr(self, node):
+        for child in node.get_children():
+            self.visit(child)
     def visit_integer_literal(self, node):
         tokens = list(node.get_tokens())
         for i, token in enumerate(tokens):
