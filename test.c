@@ -9,10 +9,14 @@ struct Y {
     int b;
 };
 
+union Value {
+    int i;
+    float f;
+};
+
 
 int myFunc(int a, int b) {
-    if (a == 0) {
-        return 0;
-    }
+    a++;
+    b++;
     return a + b;
 }

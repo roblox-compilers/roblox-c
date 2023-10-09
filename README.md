@@ -10,3 +10,5 @@ C and C++ to Luau compiler for Roblox.
 - Binary operators
 - Preprocessor
 - Struct
+- Unions
+- `++` & `--`
