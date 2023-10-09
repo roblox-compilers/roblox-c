@@ -3,10 +3,7 @@
 do
 	local i = 0
 	while (i<10) do
-		i += 1 
-		if (i==5) then
-			break
-		end
-		print("%d\n", i)
+		i += 1
+		print(i)
 	end
 end
