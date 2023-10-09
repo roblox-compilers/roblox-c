@@ -1,6 +1,7 @@
-#include "src/rbx.h"
+static int printf(char a, ...);
 
-int main(){
-    print("Hello World!\n");
-    return 0;
+int da(char a, int b, float d){
+    int x = 100;
+    int y;
+    printf(b + d + x);
 }

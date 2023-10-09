@@ -3,6 +3,7 @@ import sys, os, json
 #### LOG #####
 def error(msg):
     print("\033[91;1merror\033[0m \033[90mC roblox-c:\033[0m " + msg)
+    sys.exit(1)
 def warn(msg):
     sys.stderr.write("\033[1;33m" + "warning: " + "\033[0m" + "\033[90mC roblox-c:\033[0m " + msg)
 def info(msg):
@@ -22,8 +23,9 @@ except ImportError:
     error("libclang could not be resolved")
     
 #### COMPILER PARSER ####
-def get_ast(file_path, c):
-    test(file_path, c)
+def get_ast(file_path, c, check=True):
+    if check:
+        test(file_path, c)
     try:
         index = clang.Index.create()
         translation_unit = index.parse(file_path)
@@ -56,11 +58,61 @@ class NodeVisitor(object):
             self.visit(child)
     def visit_function_decl(self, node):
         self.pushline("function " + node.spelling)
+        self.pushexp("(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "parm_decl":
+                self.visit(child)
+                if i < len(list(node.get_children()))-2:
+                    self.pushexp(", ")
+        self.pushexp(")")
         for child in node.get_children():
-            self.visit(child)
-        self.pushline(")")
+            if child.kind.name.lower() != "parm_decl":
+                self.visit(child)
+        self.pushline("end")
     def visit_parm_decl(self, node):
         self.pushexp(node.spelling)
+    def visit_compound_stmt(self, node):
+        self.indent += 1
+        for child in node.get_children():
+            self.visit(child)
+        self.indent -= 1
+    def visit_call_expr(self, node):
+        self.pushexp(node.spelling)
+        self.pushexp("(")
+        for i, child in enumerate(node.get_children()):
+            if i == 0:
+                continue
+            self.visit(child)
+            if i < len(list(node.get_children()))-1:
+                self.pushexp(", ")
+        self.pushexp(")")
+    def visit_unexposed_expr(self, node):
+        self.pushexp(node.spelling)
+    def visit_decl_stmt(self, node):
+        for child in node.get_children():
+            self.visit(child)
+    def visit_var_decl(self, node):
+        equal = ""
+        if len(list(node.get_children())) > 0:
+            equal = " = "
+        self.pushline("local " + node.spelling + equal)
+        for child in node.get_children():
+            self.visit(child)
+        if equal == "":
+            self.newline()
+    def visit_integer_literal(self, node):
+        tokens = list(node.get_tokens())
+        for i, token in enumerate(tokens):
+            self.pushexp(token.spelling)
+    def visit_binary_operator(self, node):
+        tokens = list(node.get_tokens())
+        self.pushexp("(")
+        for i, token in enumerate(tokens):
+            self.pushexp(token.spelling)
+        self.pushexp(")")
+    def visit_asm_label_attr(self, node):
+        error("assembly cannot be embedded in roblox-c")
+    
         
     
     
@@ -68,17 +120,15 @@ class NodeVisitor(object):
     def visit(self, node):
         method = 'visit_' + node.kind.name.lower()
         visitor = getattr(self, method, self.generic_visit)
-        if not getattr(visitor, 'visit_' + node.kind.name.lower(), None):
-            error('{} unsupported'.format(node.kind.name.lower()))
-            sys.exit(1)
         return visitor(node)
     def generic_visit(self, node):
-        for child in node.get_children():
-            self.visit(child)
+        error(f"{node.kind.name.lower()} not implemented")
     def pushline(self, code):
         self.code += "\n"+("\t"*self.indent)+code
     def pushexp(self, code):
         self.code += code
+    def newline(self):
+        self.code += "\n"+("\t"*self.indent)
 
     
 #### INTERFACE #### 
@@ -132,9 +182,11 @@ def main():
     flags = []
     inputf = None
     outputf = None
+    check = True
 
     lookForOutput = False
     skip = False
+    
     
     if isconfig("lclang"):
         Config.set_library_file(isconfig("lclang"))
@@ -142,6 +194,8 @@ def main():
     for i, arg in enumerate(args):
         if arg == "-o":
             lookForOutput = True
+        elif arg == "-c":
+            check = False
         elif arg == "-p":
             if len(args) > 1:
                 Config.set_library_file(args[i+1])
@@ -187,9 +241,12 @@ def main():
         error("file must end with '.c', '.cpp', '.cxx', '.cc', or '.C'")
         sys.exit(1)
         
-    parsed = get_ast(inputf, isC)
+    parsed = get_ast(inputf, isC, check)
     print_ast(parsed)
-    NodeVisitor().visit(parsed)
+    Engine = NodeVisitor()
+    Engine.visit(parsed)
+    with open(outputf, "w") as f:
+        f.write(Engine.code)
     
 if __name__ == "__main__":
     main()
