@@ -1,7 +1,7 @@
 #include "src/rbx.h"
 
 int fibonacci(int n) {
-    if (n || n == 1) {
+    if ((n**2) == 1) {
         return 1;
     }
 }

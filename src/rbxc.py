@@ -32,7 +32,50 @@ bins = {
     "<": "<",
     ">": ">",
     "<=": "<=",
-    ">=": ">="
+    ">=": ">=",
+    "**":"^"
+}
+uns = {
+    "++": {
+        "v":" += 1",
+        "wrap": False,
+    },
+    "--": {
+        "v":" -= 1",
+        "wrap": False,
+    },
+    "&": {
+        "v":"C.ptr(",
+        "wrap": True,
+    },
+    "*": {
+        "v":"C.deref(",
+        "wrap": True,
+    },
+    "!": {
+        "v":"not ",
+        "wrap": False,
+    },
+    "sizeof": {
+        "v":"C.sizeof(",
+        "wrap": True,
+    },
+    "sizeof...": {
+        "v":"C.sizeof(",
+        "wrap": True,
+    },
+    "alignof": {
+        "v":"C.alignof(",
+        "wrap": True,
+    },
+    "__real": {
+        "v":"C.__real(",
+        "wrap": True,
+    },
+    "__imag": {
+        "v":"C.__imag(",
+        "wrap": True,
+    }
 }
 def get_ast(file_path, c, check=True):
     if check:
@@ -269,21 +312,13 @@ class NodeVisitor(object):
         wrapnext = False
         for i, token in enumerate(tokens):
             spell = token.spelling
-            if token.spelling == "++":
-                spell = " += 1"
-            elif token.spelling == "--":
-                spell = " -= 1"
-            elif token.spelling == "&":
-                spell = "C.ptr("
-                wrapnext = True
-            elif token.spelling == "*":
-                spell = "C.deref("
-                wrapnext = True
-                
+            
+            if spell in uns:
+                spell = uns[spell].v
+                wrapnext = uns[spell].wrap
             elif wrapnext:
                 spell += ")"
                 wrapnext = False
-                
             self.pushexp(spell)
         self.pushexp(" ")
         #self.pushexp(")")

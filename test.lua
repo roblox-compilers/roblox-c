@@ -5,7 +5,7 @@ local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
 
 function fibonacci(n)
-	if (n or n==1) then
+	if ((n**2)==1) then
 		return 1
 	end
 end
