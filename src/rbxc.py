@@ -57,16 +57,24 @@ class NodeVisitor(object):
         for child in node.get_children():
             self.visit(child)
     def visit_function_decl(self, node):
-        self.pushline("function " + node.spelling)
-        self.pushexp("(")
-        for i, child in enumerate(node.get_children()):
-            if child.kind.name.lower() == "parm_decl":
-                self.visit(child)
-                if i < len(list(node.get_children()))-2:
-                    self.pushexp(", ")
-        self.pushexp(")")
-        for child in node.get_children():
-            if child.kind.name.lower() != "parm_decl":
+        if node.spelling != "main":
+            self.pushline("function " + node.spelling)
+            self.pushexp("(")
+            for i, child in enumerate(node.get_children()):
+                if child.kind.name.lower() == "parm_decl":
+                    self.visit(child)
+                    if i < len(list(node.get_children()))-2:
+                        self.pushexp(", ")
+            self.pushexp(")")
+            for child in node.get_children():
+                if child.kind.name.lower() != "parm_decl":
+                    self.visit(child)
+        else:
+            self.pushline("do")
+            self.pushline("")
+            
+            
+            for child in node.get_children():
                 self.visit(child)
         self.pushline("end")
     def visit_parm_decl(self, node):
