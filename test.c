@@ -1,7 +1,18 @@
-static int printf(char a, ...);
+enum X {
+    A,
+    B,
+    C,
+};
 
-int da(char a, int b, float d){
-    int x = 100;
-    int y;
-    printf(b + d + x);
+struct Y {
+    int a;
+    int b;
+};
+
+
+int myFunc(int a, int b) {
+    if (a == 0) {
+        return 0;
+    }
+    return a + b;
 }
