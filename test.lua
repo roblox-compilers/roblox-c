@@ -5,19 +5,7 @@ local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
 
 function fibonacci(n)
-	if (n<=1) then
-		return n
-	else
-		return (fibonacci(n-1)+fibonacci(n-2))
+	if (n or n==1) then
+		return 1
 	end
-end
-do
-	local n = 10
-	local i = 0
-	while (i<n) do
-		i += 1 
-		print(C.cast("char *", fibonacci(i)))
-	end
-	print("\n")
-	return 0
 end

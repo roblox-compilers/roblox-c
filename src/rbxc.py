@@ -23,6 +23,17 @@ except ImportError:
     error("libclang could not be resolved")
     
 #### COMPILER PARSER ####
+bins = {
+    "!": "not ",
+    "||": " or ",
+    "&&": " and ",
+    "==": "==",
+    "!=": "~=",
+    "<": "<",
+    ">": ">",
+    "<=": "<=",
+    ">=": ">="
+}
 def get_ast(file_path, c, check=True):
     if check:
         test(file_path, c)
@@ -146,7 +157,11 @@ class NodeVisitor(object):
         tokens = list(node.get_tokens())
         self.pushexp("(")
         for i, token in enumerate(tokens):
-            self.pushexp(token.spelling)
+            if token.spelling in bins:
+                spell = bins[token.spelling]
+            else:
+                spell = token.spelling
+            self.pushexp(spell)
         self.pushexp(")")
     def visit_asm_label_attr(self, node):
         error("assembly cannot be embedded in roblox-c")
@@ -167,7 +182,7 @@ class NodeVisitor(object):
         ic = 0
         for i, child in enumerate(node.get_children()):
             if child.kind.name.lower() == "compound_stmt":
-                if ic == 1:
+                if ic != 0:
                     self.pushline("else")
                 ic += 1
                 self.visit(child)
@@ -251,12 +266,23 @@ class NodeVisitor(object):
     def visit_unary_operator(self, node):
         tokens = list(node.get_tokens())
         #self.pushexp("(")
+        wrapnext = False
         for i, token in enumerate(tokens):
             spell = token.spelling
             if token.spelling == "++":
                 spell = " += 1"
             elif token.spelling == "--":
                 spell = " -= 1"
+            elif token.spelling == "&":
+                spell = "C.ptr("
+                wrapnext = True
+            elif token.spelling == "*":
+                spell = "C.deref("
+                wrapnext = True
+                
+            elif wrapnext:
+                spell += ")"
+                wrapnext = False
                 
             self.pushexp(spell)
         self.pushexp(" ")

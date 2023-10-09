@@ -8,6 +8,7 @@ C and C++ to Luau compiler for Roblox.
 - Functions
 - Calling functions
 - Binary operators
+- Unary operators
 - Preprocessor
 - Struct
 - do-while loops
@@ -15,6 +16,7 @@ C and C++ to Luau compiler for Roblox.
 - For loops
 - casting
 - else
+- `*` & `&`
 - Unions
 - `main` functions
 - `++` & `--`
