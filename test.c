@@ -1,6 +1,6 @@
 #include "src/rbx.h"
 
-int (fibonacci)(int n) {
+int fibonacci(int n) {
     if (n <= 1) {
         return n;
     } else {

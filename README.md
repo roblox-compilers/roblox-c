@@ -14,6 +14,7 @@ C and C++ to Luau compiler for Roblox.
 - Strings
 - For loops
 - casting
+- else
 - Unions
 - `main` functions
 - `++` & `--`
