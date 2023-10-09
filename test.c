@@ -1,3 +1,3 @@
-int main() {
-   print()
+int main(){
+    print("Hello World!\n");
 }

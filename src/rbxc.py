@@ -28,7 +28,11 @@ def get_ast(file_path, c, check=True):
         test(file_path, c)
     try:
         index = clang.Index.create()
-        translation_unit = index.parse(file_path)
+        if c:
+            std = "c99"
+        else:
+            std = "c++11"
+        translation_unit = index.parse(file_path, args=['-std='+std])
         return translation_unit.cursor
     except clang.LibclangError as e:
         error("libclang error: " + str(e))
@@ -56,6 +60,16 @@ class NodeVisitor(object):
     def visit_translation_unit(self, node):
         for child in node.get_children():
             self.visit(child)
+    def visit_do_stmt(self, node):
+        self.pushline("repeat")
+        for child in node.get_children():
+            if child.kind.name.lower() == "compound_stmt":
+                self.visit(child)
+        self.pushline("until ")
+        for child in node.get_children():
+            if child.kind.name.lower() != "compound_stmt":
+                self.visit(child)
+        self.newline()
     def visit_function_decl(self, node):
         if node.spelling != "main":
             self.pushline("function " + node.spelling)
@@ -71,9 +85,6 @@ class NodeVisitor(object):
                     self.visit(child)
         else:
             self.pushline("do")
-            self.pushline("")
-            
-            
             for child in node.get_children():
                 self.visit(child)
         self.pushline("end")
@@ -81,9 +92,13 @@ class NodeVisitor(object):
         self.pushexp(node.spelling)
     def visit_compound_stmt(self, node):
         self.indent += 1
-        for child in node.get_children():
+        i = 0
+        self.newline()
+        for child in (node.get_children()):
             self.visit(child)
-        self.lastline()
+            i+=1
+        if i == 0:
+            self.lastline()
         self.indent -= 1
     def visit_call_expr(self, node):
         self.pushexp(node.spelling)
@@ -96,6 +111,9 @@ class NodeVisitor(object):
                 self.pushexp(", ")
         self.pushexp(")")
     def visit_unexposed_expr(self, node):
+        for child in node.get_children():
+            self.visit(child)
+    def visit_decl_ref_expr(self, node):
         self.pushexp(node.spelling)
     def visit_decl_stmt(self, node):
         for child in node.get_children():
@@ -188,8 +206,7 @@ class NodeVisitor(object):
         for child in node.get_children():
             self.visit(child)
     def visit_string_literal(self, node):
-        tokens = list(node.get_tokens())
-        self.pushexp(tokens[0].spelling)
+        self.pushexp(node.spelling)
     def visit_paren_expr(self, node):
         self.pushexp("(")
         for child in node.get_children():
@@ -208,8 +225,6 @@ class NodeVisitor(object):
             self.pushexp(spell)
         self.pushexp(" ")
         #self.pushexp(")")
-    def visit_unexposed_expr(self, node):
-        pass
     def visit_unexposed_attr(self, node):
         pass
     def visit_unexposed_decl(self, node):
