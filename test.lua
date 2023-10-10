@@ -9,9 +9,6 @@ local RBX_OK = 20 -- enum: rbx_status
 local RBX_ERR = 30 -- enum: rbx_status
 
 function myFunc(n)
-	local counter = 0
-	while (counter<10) do
-		print("Counter = ", counter)counter += 1 
-	end
+	asm("nop")
 	return 0
 end

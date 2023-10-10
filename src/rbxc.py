@@ -209,6 +209,10 @@ class NodeVisitor(object):
     def visit_asm_label_attr(self, node):
         error("to add asm support to roblox-c run `rcc install rasm`")
         pass
+    def visit_asm_stmt(self, node):
+        error("to add asm support to roblox-c run `rcc install rasm`")
+        pass
+    
     def visit_while_stmt(self, node):
         self.pushline("while ")
         for i, child in enumerate(node.get_children()):

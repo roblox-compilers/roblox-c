@@ -6,10 +6,10 @@ enum rbx_status {
 };
 
 int myFunc(int n) {
-    volatile int counter = 0;
-    while (counter < 10) {
-        print("Counter = ", counter);
-        counter++;
-    }
+    __asm__ __volatile__ (
+        "movl %1, %%eax;"
+        "addl $1, %%eax;"
+        "movl %%eax, %0;"
+    );
     return 0;
 }
