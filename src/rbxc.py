@@ -217,7 +217,8 @@ class NodeVisitor(object):
     def visit_if_stmt(self, node):
         self.pushline("if ")
         for i, child in enumerate(node.get_children()):
-            if child.kind.name.lower() == "compound_stmt":
+            
+            if child.kind.name.lower() == "compound_stmt" or child.kind.name.lower() == "if_stmt":
                 continue
             
             self.visit(child)
@@ -229,9 +230,53 @@ class NodeVisitor(object):
                     self.pushline("else")
                 ic += 1
                 self.visit(child)
+            elif child.kind.name.lower() == "if_stmt":
+                self.pushline("else")
+                self.indent += 1
+                self.visit(child)
+                self.indent -= 1
+                self.newline()
                 
         self.pushline("end")
         self.newline()
+    def visit_switch_stmt(self, node):
+        self.pushline("C.switch(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "compound_stmt":
+                continue
+            self.visit(child)
+        self.pushexp(", {")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "compound_stmt":
+                self.visit(child)
+        self.pushline("})")
+        self.newline()
+    def visit_case_stmt(self, node):
+        case_value = list(node.get_children())[0]
+        self.pushline("[")
+        self.visit(case_value)
+        self.pushexp("] = function()")
+        self.indent += 1
+        for i, child in enumerate(node.get_children()):
+            if i == 0:
+                continue
+            if child.kind.name.lower() == "break_stmt":
+                self.pushline("return true")
+            else:
+                self.visit(child)
+        self.indent -= 1
+        self.pushline("end,")
+    def visit_default_stmt(self, node):
+        self.pushline("[C.def] = function()")
+        self.indent += 1
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "break_stmt":
+                self.pushline("return true")
+            else:
+                self.visit(child)
+        self.indent -= 1
+        self.pushline("end,")
+        
     def visit_compound_assign_operator(self, node):
         tokens = list(node.get_tokens())
         self.pushexp("(")

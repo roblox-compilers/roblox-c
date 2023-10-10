@@ -26,6 +26,27 @@ function cast(type, value)
     end
 end
 
+-- SWITCH
+def = newproxy()
+function switch(value, cases)
+    if cases[value] then
+        returnv = cases[value]()
+        if returnv ~= nil then
+            -- fallthrough
+            start = false
+            for i, v in cases do
+                if i == value then
+                    start = true
+                end
+                if start then
+                    v()
+                end
+            end
+        end
+    elseif cases[def] then
+        cases[def]()
+    end
+end
 
 -- MEMORY
 -- todo: support directly modifying memory
