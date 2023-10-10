@@ -55,6 +55,22 @@ function switch(value, cases)
     end
 end
 
+-- C++ 
+construct = newproxy()
+destruct = newproxy()
+
+function new(methods, ...)
+    if methods[construct] then
+        methods[construct](...)
+    end
+    return methods 
+end
+function delete(obj)
+    if obj[destruct] then
+        obj[destruct]()
+    end
+end
+
 -- MEMORY
 -- todo: support directly modifying memory
 _G.CMemory = _G.CMemory or {}
@@ -117,6 +133,26 @@ end
 
 
 return {
-    cast = cast
+    cast = cast,
+    switch = switch,
+    new = new,
+    delete = delete,
+    malloc = malloc,
+    free = free,
+    realloc = realloc,
+    calloc = calloc,
+    memset = memset,
+    memcpy = memcpy,
+    memmove = memmove,
+    memcmp = memcmp,
+    memchr = memchr,
+    ptr = ptr,
+    deref = deref,
+    
+    -- CONSTANTS
+    construct = construct,
+    destruct = destruct,
+    def = def,
+    brk = brk
 }
 """

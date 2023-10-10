@@ -174,6 +174,7 @@ class NodeVisitor(object):
             if i < len(list(node.get_children()))-1:
                 self.pushexp(", ")
         self.pushexp(")")
+    ### C++ & C: DIFFERENT IMPLEMENATIONS ###
     def visit_unexposed_expr(self, node):
         mode = 0
         for child in node.get_children():
@@ -197,6 +198,67 @@ class NodeVisitor(object):
         else:
             for child in node.get_children():
                 self.visit(child)
+    ### C++ ONLY ###
+    def visit_class_decl(self, node):
+        self.pushline("local " + node.spelling + " = {")
+        self.indent += 1
+        for i, child in enumerate(node.get_children()):
+            self.visit(child)
+            if child.spelling != "":
+                self.pushexp(",")
+        self.indent -= 1
+        self.pushline("}")
+    def visit_cxx_access_spec_decl(self, node):
+        pass
+    def visit_constructor(self, node):
+        self.pushline("[C.construct] = function")
+        self.pushexp("(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "parm_decl":
+                self.visit(child)
+                if i < len(list(node.get_children()))-2:
+                    self.pushexp(", ")
+        self.pushexp(")")
+        for child in node.get_children():
+            if child.kind.name.lower() != "parm_decl":
+                self.visit(child)
+        self.pushline("end")
+    def visit_cxx_new_expr(self, node):
+        self.pushexp("C.new(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "call_expr":
+                self.pushexp(child.spelling)
+                for i, childchild in enumerate(child.get_children()):
+                    if i != len(list(child.get_children())):
+                        self.pushexp(", ")
+                    self.visit(childchild)
+        self.pushexp(")")
+    def visit_cxx_delete_expr(self, node):
+        self.pushline("C.delete(")
+        deletes = []
+        for i, child in enumerate(node.get_children()):
+            self.visit(child)
+            deletes.append(child.spelling)
+            if i < len(list(node.get_children()))-1:
+                self.pushexp(", ")
+        self.pushexp(")")
+        for delete in deletes:
+            line = delete + " = nil"
+            self.pushline(line)
+    def visit_destructor(self, node):
+        self.pushline("[C.destruct] = function")
+        self.pushexp("(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "parm_decl":
+                self.visit(child)
+                if i < len(list(node.get_children()))-2:
+                    self.pushexp(", ")
+        self.pushexp(")")
+        for child in node.get_children():
+            if child.kind.name.lower() != "parm_decl":
+                self.visit(child)
+        self.pushline("end")
+    ### ALL ###
     def visit_decl_ref_expr(self, node):
         self.pushexp(node.spelling)
     def visit_decl_stmt(self, node):
@@ -396,7 +458,7 @@ class NodeVisitor(object):
         self.indent -= 1
         self.pushline("}")
     def visit_type_ref(self, node):
-        self.pushexp(node.spelling)
+        pass
     def visit_enum_decl(self, node):
         tokens = list(node.get_tokens())
         for child in node.get_children():

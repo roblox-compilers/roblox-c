@@ -4,28 +4,19 @@
 local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
 
-local RED = 0 -- enum: Color
-local GREEN = 1 -- enum: Color
-local BLUE = 2 -- enum: Color
-
-function print_color(color)
-	if color==RED  then
-		print("hi")
-	else
-		if color==GREEN  then
-			print("hi")
-		else
-			print("hi")
-		end
-	end
-end
-function add(a, b)
-	return a+b 
-end
-function greet(name)
-	print("hi")
-end
-function call_functions()
-	greet("Alice")
-	local sum = add(2, 3)print("hi")
+local Test = {
+	[C.construct] = function(x, y)
+		printf("Test constructor called with x = %d, y = %d\n", x, y)
+	end,
+	[C.destruct] = function()
+		printf("Test destructor called\n")
+	end,
+	x = nil,
+	y = nil,
+}
+do
+	local t = C.new(Test, 10, 20)
+	C.delete(t)
+	t = nil
+	return 0
 end

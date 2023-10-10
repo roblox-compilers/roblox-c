@@ -1,35 +1,20 @@
 #include "src/rbx.h"
-// Enums
-enum Color {
-    RED,
-    GREEN,
-    BLUE
+
+class Test {
+public:
+    Test(int x, int y) {
+        printf("Test constructor called with x = %d, y = %d\n", x, y);
+    }
+    ~Test() {
+        printf("Test destructor called\n");
+    }
+private:
+    int x;
+    int y;
 };
 
-// If statements
-void print_color(Color color) {
-    if (color == RED) {
-        print("hi");
-    } else if (color == GREEN) {
-        print("hi");
-    } else {
-        print("hi");
-    }
-}
-
-// Return
-int add(int a, int b) {
-    return a + b;
-}
-
-// Functions
-void greet(const char* name) {
-    print("hi");
-}
-
-// Calling functions
-void call_functions() {
-    greet("Alice");
-    int sum = add(2, 3);
-    print("hi");
+int main() {
+    Test* t = new Test(10, 20); // call the constructor of the Test class
+    delete t; // call the destructor of the Test class
+    return 0;
 }

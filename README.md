@@ -2,7 +2,7 @@
 C and C++ to Luau compiler for Roblox.
 
 ## Supports
-### Full C99 with:
+### C with:
 - Enums
 - If statements
 - Return
@@ -27,8 +27,15 @@ C and C++ to Luau compiler for Roblox.
 - Arrays
 - Indexing
 - switch (with fallthrough)
-### Full C++11 with:
-(all in C99)
-- 
+### C++ with:
+- everything in C
+- classes
+- constructors
+- delete
+- new
+- destructors
 ## Todo
 - `**`
+- `->`
+- `this`
+- Roblox bindings 
