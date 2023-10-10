@@ -2,6 +2,7 @@
 C and C++ to Luau compiler for Roblox.
 
 ## Supports
+### Full C99 with:
 - Enums
 - If statements
 - Return
@@ -20,8 +21,11 @@ C and C++ to Luau compiler for Roblox.
 - `*` & `&`
 - Unions
 - `main` functions
+- Gotos (Lua 5.2+)
 - Short & Long values
 - `++` & `--`
 - switch (with fallthrough)
+### Full C++11 with:
+
 ## Todo
 - `**`

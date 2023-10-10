@@ -32,6 +32,7 @@ extern "C" { /**/
 static void print(const char* str);
 static void warn(const char* str);
 static void error(const char* str);
+static void printf(const char* str, ...);
 
 /* macros */
 #define export(void)

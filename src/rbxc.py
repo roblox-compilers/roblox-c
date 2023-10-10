@@ -2,12 +2,12 @@ import sys, os, json
 
 #### LOG #####
 def error(msg):
-    print("\033[91;1merror\033[0m \033[90mC roblox-c:\033[0m " + msg)
+    sys.stderr.write("\033[91;1merror\033[0m \033[90mC roblox-c:\033[0m " + msg + "\n")
     sys.exit(1)
 def warn(msg):
-    sys.stderr.write("\033[1;33m" + "warning: " + "\033[0m" + "\033[90mC roblox-c:\033[0m " + msg)
+    sys.stderr.write("\033[1;33m" + "warning: " + "\033[0m" + "\033[90mC roblox-c:\033[0m " + msg + "\n")
 def info(msg):
-    sys.stderr.write("\033[1;32m" + "info: " + "\033[0m" + "\033[90mC roblox-c:\033[0m " + msg)
+    sys.stderr.write("\033[1;32m" + "info: " + "\033[0m" + "\033[90mC roblox-c:\033[0m " + msg  + "\n")
     
     
 #### CONSTANTS ####
@@ -207,8 +207,29 @@ class NodeVisitor(object):
             self.pushexp(spell)
         self.pushexp(")")
     def visit_asm_label_attr(self, node):
-        error("assembly cannot be embedded in roblox-c")
+        error("to add asm support to roblox-c run `rcc install rasm`")
         pass
+    def visit_while_stmt(self, node):
+        self.pushline("while ")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "compound_stmt":
+                continue
+            self.visit(child)
+        self.pushexp(" do")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "compound_stmt":
+                self.visit(child)
+        self.pushline("end")
+        self.newline()
+    def visit_goto_stmt(self, node):
+        warn("goto requires Lua 5.2+, not Luau")
+        for child in node.get_children():
+            self.pushline("goto " + child.spelling)
+        pass
+    def visit_label_stmt(self, node):
+        warn("labels requires Lua 5.2+, not Luau")
+        self.pushline("::" + node.spelling + "::")
+        
     def visit_return_stmt(self, node):
         self.pushline("return ")
         for child in node.get_children():
@@ -338,12 +359,8 @@ class NodeVisitor(object):
         tokens = list(node.get_tokens())
         self.pushline("local " + tokens[1].spelling + " = \"enum\"")
         for child in node.get_children():
-            self.visit(child)
+            self.pushline(child.spelling + " = " + str(child.enum_value))
         self.newline()
-    def visit_enum_constant_decl(self, node):
-        self.pushline(node.spelling + " = " + str(node.enum_value))
-        for child in node.get_children():
-            self.visit(child)
     def visit_string_literal(self, node):
         self.pushexp(node.spelling)
     def visit_paren_expr(self, node):
@@ -359,8 +376,8 @@ class NodeVisitor(object):
             spell = token.spelling
             
             if spell in uns:
-                spell = uns[spell].v
-                wrapnext = uns[spell].wrap
+                wrapnext = uns[spell]["wrap"]
+                spell = uns[spell]["v"]
             elif wrapnext:
                 spell += ")"
                 wrapnext = False
