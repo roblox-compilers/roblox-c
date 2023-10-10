@@ -3,21 +3,6 @@
 
 local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
-printf = C.printf
 
-local Test = {
-	[C.construct] = function(x, y)
-		printf("Test constructor called with x = %d, y = %d\n", x, y)
-	end,
-	[C.destruct] = function()
-		printf("Test destructor called\n")
-	end,
-	x = nil,
-	y = nil,
-}
 do
-	local t = C.new(Test, 10, 20)
-	C.delete(t)
-	t = nil
-	return 0
 end

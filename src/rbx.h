@@ -29,7 +29,7 @@ extern "C" { /**/
 #ifdef RBXCHECK /* being checked, define all macros */
 
 /* functions */
-static void print(...);
+static void print(void *any, ...);
 static void warn(const char* str);
 static void error(const char* str);
 static void printf(const char* str, ...);
