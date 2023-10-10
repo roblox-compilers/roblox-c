@@ -8,7 +8,7 @@ enum rbx_status {
 int myFunc(int n) {
     volatile int counter = 0;
     while (counter < 10) {
-        printf("Counter = %d\n", counter);
+        print("Counter = ", counter);
         counter++;
     }
     return 0;

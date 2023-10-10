@@ -5,13 +5,13 @@ local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
 
 local rbx_status = "enum"
-RBX_OK = 20
-RBX_ERR = 30
+local RBX_OK = 20 -- enum: rbx_status
+local RBX_ERR = 30 -- enum: rbx_status
 
 function myFunc(n)
 	local counter = 0
 	while (counter<10) do
-		printf("Counter = %d\n", counter)counter += 1 
+		print("Counter = ", counter)counter += 1 
 	end
 	return 0
 end

@@ -359,7 +359,7 @@ class NodeVisitor(object):
         tokens = list(node.get_tokens())
         self.pushline("local " + tokens[1].spelling + " = \"enum\"")
         for child in node.get_children():
-            self.pushline(child.spelling + " = " + str(child.enum_value))
+            self.pushline("local " + child.spelling + " = " + str(child.enum_value) + " -- enum: " + tokens[1].spelling)
         self.newline()
     def visit_string_literal(self, node):
         self.pushexp(node.spelling)
