@@ -5,7 +5,10 @@ enum rbx_status {
     RBX_ERR = 30,
 };
 
-int myFunc(int n) {
-    print("Hi");
+int main() {
+    double v[] = {
+        {1, 2, 3},
+        {4, 5, 6},
+    };
     return 0;
 }

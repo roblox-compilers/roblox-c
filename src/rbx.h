@@ -27,7 +27,6 @@ extern "C" { /**/
 /*** DEFINITIONS ***/
 /********************/
 #ifdef RBXCHECK /* being checked, define all macros */
-
 /* functions */
 static void print(const char* str, ...);
 static void warn(const char* str);
@@ -37,6 +36,16 @@ static void printf(const char* str, ...);
 /* macros */
 #define export(void)
 
+/* types */
+typedef struct {
+    int x;
+    int y;
+} Vector2;
+typedef struct {
+    int x;
+    int y;
+    int z;
+} Vector3;
 
 #else /* undergoing compilation */
 #define RBX 1 /* tell source code that RBX compiler is being used */

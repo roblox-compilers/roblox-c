@@ -24,6 +24,8 @@ C and C++ to Luau compiler for Roblox.
 - Gotos (Lua 5.2+)
 - Short & Long values
 - `++` & `--`
+- Arrays
+- Indexing (starting at 0)
 - switch (with fallthrough)
 ### Full C++11 with:
 

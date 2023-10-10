@@ -33,7 +33,8 @@ bins = {
     ">": ">",
     "<=": "<=",
     ">=": ">=",
-    "**":"^"
+    "**":"^",
+    "]": " + 1] "
 }
 uns = {
     "++": {
@@ -182,7 +183,9 @@ class NodeVisitor(object):
         if len(list(node.get_children())) > 0:
             equal = " = "
         self.pushline("local " + node.spelling + equal)
-        for child in node.get_children():
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "integer_literal" and list(node.get_children())[i+1].kind.name.lower() == "init_list_expr":
+                continue
             self.visit(child)
         if equal == "":
             self.newline()
@@ -198,14 +201,13 @@ class NodeVisitor(object):
             self.pushexp(token.spelling)
     def visit_binary_operator(self, node):
         tokens = list(node.get_tokens())
-        self.pushexp("(")
         for i, token in enumerate(tokens):
             if token.spelling in bins:
                 spell = bins[token.spelling]
             else:
                 spell = token.spelling
             self.pushexp(spell)
-        self.pushexp(")")
+        self.pushexp(" ")
     def visit_asm_label_attr(self, node):
         error("to add asm support to roblox-c run `rcc install rasm`")
         pass
@@ -233,7 +235,19 @@ class NodeVisitor(object):
     def visit_label_stmt(self, node):
         warn("labels requires Lua 5.2+, not Luau")
         self.pushline("::" + node.spelling + "::")
-        
+    def visit_init_list_expr(self, node):
+        self.pushexp("{")
+        for i, child in enumerate(node.get_children()):
+            self.visit(child)
+            if i < len(list(node.get_children()))-1:
+                self.pushexp(", ")
+        self.pushexp("}")
+    def visit_array_subscript_expr(self, node):
+        pass
+    def visit_floating_literal(self, node):
+        tokens = list(node.get_tokens())
+        for i, token in enumerate(tokens):
+            self.pushexp(token.spelling)
     def visit_return_stmt(self, node):
         self.pushline("return ")
         for child in node.get_children():
@@ -532,7 +546,7 @@ def main():
         sys.exit(1)
         
     parsed = get_ast(inputf, isC, check)
-    #print_ast(parsed)
+    print_ast(parsed)
     Engine = NodeVisitor()
     Engine.visit(parsed)
     Engine.clean()

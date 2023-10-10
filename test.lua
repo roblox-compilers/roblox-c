@@ -8,7 +8,7 @@ local rbx_status = "enum"
 local RBX_OK = 20 -- enum: rbx_status
 local RBX_ERR = 30 -- enum: rbx_status
 
-function myFunc(n)
-	print("Hi")
+do
+	local v = {{1, 2, 3}, {4, 5, 6}}
 	return 0
 end
