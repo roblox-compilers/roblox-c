@@ -1,4 +1,5 @@
 import sys, os, json
+import crun
 
 #### LOG #####
 def error(msg):
@@ -614,7 +615,7 @@ def main():
             usage()
         elif arg.startswith("-"):
             flags.append(arg)
-        elif inputf is None:
+        elif (inputf is None) and "-s" not in args:
             inputf = arg
         elif lookForOutput:
             outputf = arg
@@ -625,13 +626,18 @@ def main():
             error("too many arguments")
             sys.exit(1)
     
-    if inputf is None:
+    if (inputf is None) and "-s" not in args:
         usage()
         sys.exit(1)
     
     if outputf is None:
         error("no output file specified")
         sys.exit(1)
+        
+    if "-s" in args:
+        with open(outputf, "w") as f:
+            f.write(crun.cruntime)
+        sys.exit(0)
     
     isC = None
     if inputf.endswith(".c"):

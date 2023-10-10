@@ -33,7 +33,7 @@ brk = newproxy()
 
 function switch(value, cases)
     if cases[value] then
-        returnv = cases[value]()
+        local returnv = cases[value]()
         if returnv ~= nil then
             -- fallthrough
             start = false
