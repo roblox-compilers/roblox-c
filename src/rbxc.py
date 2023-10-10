@@ -532,7 +532,7 @@ def main():
         sys.exit(1)
         
     parsed = get_ast(inputf, isC, check)
-    print_ast(parsed)
+    #print_ast(parsed)
     Engine = NodeVisitor()
     Engine.visit(parsed)
     Engine.clean()

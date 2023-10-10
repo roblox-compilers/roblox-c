@@ -6,10 +6,6 @@ enum rbx_status {
 };
 
 int myFunc(int n) {
-    __asm__ __volatile__ (
-        "movl %1, %%eax;"
-        "addl $1, %%eax;"
-        "movl %%eax, %0;"
-    );
+    print("Hi");
     return 0;
 }
