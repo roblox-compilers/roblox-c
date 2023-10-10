@@ -567,9 +567,13 @@ def usage():
     print("\n"+f"""usage: \033[1;94mrbxc\033[0m [file] [options] -o [gen]
 \033[1mOptions:\033[0m
 {TAB}\033[1m-v\033[0m        show version information
+{TAB}\033[1m-c\033[0m        debug mode
+{TAB}\033[1m-s\033[0m        generate cruntime
+{TAB}\033[1m-o\033[0m        output file
 {TAB}\033[1m-vd\033[0m       show version number only
 {TAB}\033[1m-p\033[0m        set libclang path
-{TAB}\033[1m-u\033[0m        open this""")
+{TAB}\033[1m-u\033[0m        open this
+{TAB}\033[1;31m-h\033[0m\033[31m        hardcore mode\033[0m""")
     sys.exit()
 def version():
     print("\033[1;34m" + "copyright:" + "\033[0m" + " roblox-py " + "\033[1m" + VERSION + "\033[0m" + " licensed under the MIT License by " + "\033[1m" + "@AsynchronousAI" + "\033[0m")
@@ -584,7 +588,7 @@ def main():
 
     lookForOutput = False
     skip = False
-    
+    hardcore = False
     
     if isconfig("lclang"):
         Config.set_library_file(isconfig("lclang"))
@@ -598,6 +602,8 @@ def main():
             lookForOutput = True
         elif arg == "-c":
             check = False
+        elif arg == "-h":
+            hardcore = True
         elif arg == "-p":
             if len(args) > 1:
                 Config.set_library_file(args[i+1])
@@ -655,7 +661,11 @@ def main():
     Engine.visit(parsed)
     Engine.clean()
     with open(outputf, "w") as f:
-        f.write(HEADER + gen(Engine.code) + Engine.code)
+        code = (HEADER + gen(Engine.code) + Engine.code)
+        if hardcore:
+            code = "xpcall(function() -- hardcore mode\n" + code + "\nend, function(err) -- hardcore mode\n\terror('Segmenation fault: 11') -- hardcore mode\nend) -- hardcore mode"
+            
+        f.write(code)
     
 if __name__ == "__main__":
     main()
