@@ -3,6 +3,7 @@
 
 local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
+printf = C.printf
 
 local Test = {
 	[C.construct] = function(x, y)
