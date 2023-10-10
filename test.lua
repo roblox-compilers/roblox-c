@@ -4,11 +4,28 @@
 local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
 
-local rbx_status = "enum"
-local RBX_OK = 20 -- enum: rbx_status
-local RBX_ERR = 30 -- enum: rbx_status
+local RED = 0 -- enum: Color
+local GREEN = 1 -- enum: Color
+local BLUE = 2 -- enum: Color
 
-do
-	local v = {{1, 2, 3}, {4, 5, 6}}
-	return 0
+function print_color(color)
+	if color==RED  then
+		print("hi")
+	else
+		if color==GREEN  then
+			print("hi")
+		else
+			print("hi")
+		end
+	end
+end
+function add(a, b)
+	return a+b 
+end
+function greet(name)
+	print("hi")
+end
+function call_functions()
+	greet("Alice")
+	local sum = add(2, 3)print("hi")
 end

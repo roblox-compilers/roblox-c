@@ -78,9 +78,9 @@ uns = {
         "wrap": True,
     }
 }
-def get_ast(file_path, c, check=True):
+def get_ast(file_path, c, check=True, flags=[]):
     if check:
-        test(file_path, c)
+        test(file_path, c, flags)
     try:
         index = clang.Index.create()
         if c:
@@ -99,20 +99,24 @@ def print_ast(node, depth=0):
     print('  ' * depth + str(node.kind) + ' : ' + node.spelling)
     for child in node.get_children():
         print_ast(child, depth + 1)
-def test(file_path, c):
+def test(file_path, c, flags):
     # Runs gcc on the file to check for errors, if there is an error sys.exit(1)
     if c:
-        iserrors = os.system("gcc -fsyntax-only -DRBXCHECK=1 " + file_path)
+        iserrors = os.system("gcc -fsyntax-only -DRBXCHECK=1 " + " ".join(flags) + " " + file_path)
     else:
-        iserrors = os.system("g++ -fsyntax-only -DRBXCHECK=1 " + file_path)
+        iserrors = os.system("g++ -fsyntax-only -DRBXCHECK=1 " + " ".join(flags) + " " + file_path)
     if iserrors != 0:
         sys.exit(1)
 
 #### GENERATOR ####
 class NodeVisitor(object):
-    def __init__(self):
+    def __init__(self, isC):
         self.indent = 0
         self.code = ""
+        if isC:
+            self.lang = "C"
+        else:
+            self.lang = "C++"
 
     ### VISITORS ###
     def visit_translation_unit(self, node):
@@ -171,8 +175,28 @@ class NodeVisitor(object):
                 self.pushexp(", ")
         self.pushexp(")")
     def visit_unexposed_expr(self, node):
+        mode = 0
         for child in node.get_children():
-            self.visit(child)
+            if child.kind.name.lower() == "decl_ref_expr":
+                mode = 1
+        if self.lang == "C++" and node.spelling == "" and mode == 1:
+            try:
+                name = list(list(node.get_children())[0].get_children())[0].spelling
+            except:
+                name = list(node.get_children())[0].spelling
+            self.pushexp(name)
+            self.pushexp("(")
+            for i, child in enumerate(node.get_children()):
+                if i == 0:
+                    continue
+                self.visit(child)
+                
+                if i < len(list(node.get_children()))-1:
+                    self.pushexp(", ")
+            self.pushexp(")")
+        else:
+            for child in node.get_children():
+                self.visit(child)
     def visit_decl_ref_expr(self, node):
         self.pushexp(node.spelling)
     def visit_decl_stmt(self, node):
@@ -375,7 +399,6 @@ class NodeVisitor(object):
         self.pushexp(node.spelling)
     def visit_enum_decl(self, node):
         tokens = list(node.get_tokens())
-        self.pushline("local " + tokens[1].spelling + " = \"enum\"")
         for child in node.get_children():
             self.pushline("local " + child.spelling + " = " + str(child.enum_value) + " -- enum: " + tokens[1].spelling)
         self.newline()
@@ -495,8 +518,12 @@ def main():
     if isconfig("lclang"):
         Config.set_library_file(isconfig("lclang"))
         
+    flags = []
+    
     for i, arg in enumerate(args):
-        if arg == "-o":
+        if arg.startswith("-W"):
+            flags.append(arg)
+        elif arg == "-o":
             lookForOutput = True
         elif arg == "-c":
             check = False
@@ -545,9 +572,10 @@ def main():
         error("file must end with '.c', '.cpp', '.cxx', '.cc', or '.C'")
         sys.exit(1)
         
-    parsed = get_ast(inputf, isC, check)
-    print_ast(parsed)
-    Engine = NodeVisitor()
+    parsed = get_ast(inputf, isC, check, flags)
+    if not check:
+        print_ast(parsed)
+    Engine = NodeVisitor(isC)
     Engine.visit(parsed)
     Engine.clean()
     with open(outputf, "w") as f:

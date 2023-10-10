@@ -25,9 +25,10 @@ C and C++ to Luau compiler for Roblox.
 - Short & Long values
 - `++` & `--`
 - Arrays
-- Indexing (starting at 0)
+- Indexing
 - switch (with fallthrough)
 ### Full C++11 with:
-
+(all in C99)
+- 
 ## Todo
 - `**`
