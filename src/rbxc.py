@@ -261,7 +261,7 @@ class NodeVisitor(object):
             if i == 0:
                 continue
             if child.kind.name.lower() == "break_stmt":
-                self.pushline("return true")
+                self.pushline("return C.brk")
             else:
                 self.visit(child)
         self.indent -= 1
@@ -271,7 +271,7 @@ class NodeVisitor(object):
         self.indent += 1
         for i, child in enumerate(node.get_children()):
             if child.kind.name.lower() == "break_stmt":
-                self.pushline("return true")
+                self.pushline("return C.brk")
             else:
                 self.visit(child)
         self.indent -= 1

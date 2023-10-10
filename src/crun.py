@@ -28,6 +28,8 @@ end
 
 -- SWITCH
 def = newproxy()
+brk = newproxy()
+
 function switch(value, cases)
     if cases[value] then
         returnv = cases[value]()
@@ -42,6 +44,10 @@ function switch(value, cases)
                     v()
                 end
             end
+        elseif returnv == brk then
+            return nil
+        else
+            return returnv
         end
     elseif cases[def] then
         cases[def]()

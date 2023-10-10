@@ -10,7 +10,7 @@ function myFunc(n)
 			return 1
 		end,
 		[2] = function()
-			return true
+			return C.brk
 		end,
 		[C.def] = function()
 			return 0
