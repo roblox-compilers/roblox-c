@@ -133,10 +133,15 @@ end
 
 
 return {
+    -- INTERNAL
     cast = cast,
     switch = switch,
     new = new,
     delete = delete,
+    ptr = ptr,
+    deref = deref,
+    
+    -- STD
     malloc = malloc,
     free = free,
     realloc = realloc,
@@ -146,8 +151,7 @@ return {
     memmove = memmove,
     memcmp = memcmp,
     memchr = memchr,
-    ptr = ptr,
-    deref = deref,
+    printf = function(str, ...) print(str:format(...)) end,
     
     -- CONSTANTS
     construct = construct,
