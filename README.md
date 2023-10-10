@@ -20,6 +20,7 @@ C and C++ to Luau compiler for Roblox.
 - `*` & `&`
 - Unions
 - `main` functions
+- Short & Long values
 - `++` & `--`
 - switch (with fallthrough)
 ## Todo

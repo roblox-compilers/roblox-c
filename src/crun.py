@@ -5,6 +5,7 @@ cruntime = """
 
 -- CASTING
 function cast(type, value)
+    type = type:gsub("long", ""):gsub("short", "")
     if type == "int" then
         return tonumber(value)
     elseif type == "string" then
