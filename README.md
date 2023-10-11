@@ -33,6 +33,7 @@ C and C++ to Luau compiler for Roblox.
 - constructors
 - delete
 - new
+- namespaces
 - destructors
 ## Todo
 - `->`

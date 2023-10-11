@@ -118,6 +118,7 @@ class NodeVisitor(object):
             self.lang = "C"
         else:
             self.lang = "C++"
+            self.namespaces = {}
 
     ### VISITORS ###
     def visit_translation_unit(self, node):
@@ -153,6 +154,8 @@ class NodeVisitor(object):
                     error("main function must only have a compound statement")
                 self.visit(child)
         self.pushline("end")
+        
+        return node.spelling
     def visit_parm_decl(self, node):
         self.pushexp(node.spelling)
     def visit_compound_stmt(self, node):
@@ -209,6 +212,7 @@ class NodeVisitor(object):
                 self.pushexp(",")
         self.indent -= 1
         self.pushline("}")
+        return node.spelling
     def visit_cxx_access_spec_decl(self, node):
         pass
     def visit_constructor(self, node):
@@ -234,6 +238,27 @@ class NodeVisitor(object):
                         self.pushexp(", ")
                     self.visit(childchild)
         self.pushexp(")")
+    def visit_namespace(self, node):
+        self.pushline("local function namespace_"+node.spelling+"()")
+        self.indent += 1
+        defs = []
+        for i, child in enumerate(node.get_children()):
+            defs.append(self.visit(child))
+        self.pushline("return {")
+        self.indent += 1
+        for ndef in defs:
+            if type(ndef) == str:
+                self.pushline("[" + ndef + "] = " + ndef + ",")
+        self.indent -= 1
+        self.pushline("}")
+        self.indent -= 1
+        self.pushline("end")
+        self.namespaces[node.spelling] = defs
+    def visit_using_directive(self, node):
+        for child in node.get_children():
+            self.pushline("local " + child.spelling + " = namespace_" + child.spelling + "()")
+            for ndef in self.namespaces[child.spelling]:
+                self.pushline("local " + ndef + " = " + child.spelling + "[\"" + ndef + "\"]")
     def visit_cxx_delete_expr(self, node):
         self.pushline("C.delete(")
         deletes = []
@@ -271,11 +296,12 @@ class NodeVisitor(object):
             equal = " = "
         self.pushline("local " + node.spelling + equal)
         for i, child in enumerate(node.get_children()):
-            if child.kind.name.lower() == "integer_literal" and list(node.get_children())[i+1].kind.name.lower() == "init_list_expr":
+            if child.kind.name.lower() == "integer_literal" and len(list(node.get_children())) < i and list(node.get_children())[i+1].kind.name.lower() == "init_list_expr":
                 continue
             self.visit(child)
         if equal == "":
             self.newline()
+        return node.spelling    
     def visit_cstyle_cast_expr(self, node):
         line = "C.cast(\"{}\", "
         self.pushexp(line.format(node.type.spelling))
