@@ -206,12 +206,21 @@ class NodeVisitor(object):
     def visit_class_decl(self, node):
         self.pushline("local " + node.spelling + " = {")
         self.indent += 1
+        base = None
         for i, child in enumerate(node.get_children()):
-            self.visit(child)
-            if child.spelling != "":
-                self.pushexp(",")
+            if child.kind.name.lower() == "cxx_base_specifier":
+                base = child.spelling
+            else:
+                self.visit(child)
+                if child.spelling != "":
+                    self.pushexp(",")
         self.indent -= 1
         self.pushline("}")
+        if base:
+            self.pushline("for i, v in (" + base + ") do")
+            self.pushline("\t" + node.spelling + "[i] = v")
+            self.pushline("end")
+            
         return node.spelling
     def visit_cxx_access_spec_decl(self, node):
         pass
@@ -259,6 +268,21 @@ class NodeVisitor(object):
             self.pushline("local " + child.spelling + " = namespace_" + child.spelling + "()")
             for ndef in self.namespaces[child.spelling]:
                 self.pushline("local " + ndef + " = " + child.spelling + "[\"" + ndef + "\"]")
+    def visit_cxx_method(self, node):
+        self.pushline(node.spelling + " = function")
+        self.pushexp("(")
+        for i, child in enumerate(node.get_children()):
+            if child.kind.name.lower() == "parm_decl" and not child.kind.name.lower() == "cxx_base_specifier":
+                self.visit(child)
+                if i < len(list(node.get_children()))-2:
+                    self.pushexp(", ")
+        self.pushexp(")")
+        for child in node.get_children():
+            if child.kind.name.lower() != "parm_decl":
+                self.visit(child)
+        self.pushline("end")
+    def visit_cxx_base_specifier(self, node):
+        self.pushline("[" + node.spelling + "] = " + node.spelling + ",")
     def visit_cxx_delete_expr(self, node):
         self.pushline("C.delete(")
         deletes = []

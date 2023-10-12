@@ -3,24 +3,26 @@
 
 local C = require(game.ReplicatedStorage:WaitForChild("Packages").cruntime)
 
-printf = C.printf
 
-local function namespace_myNamespace()
-	local my_variable = 42
-	function my_function()
-	end
-	local MyClass = {
-	}
-	return {
-		[my_variable] = my_variable,
-		[my_function] = my_function,
-		[MyClass] = MyClass,
-	}
+local Shape = {
+	setWidth = function(w)
+		width=w 
+	end,
+	setHeight = function(h)
+		height=h 
+	end,
+	width = nil,
+	height = nil,
+}
+local Rectangle = {
+	getArea = function()
+		return (width*height )
+	end,
+}
+for i, v in pairs(Shape) do
+	Rectangle[i] = v
 end
-local myNamespace = namespace_myNamespace()
-local my_variable = myNamespace["my_variable"]
-local my_function = myNamespace["my_function"]
-local MyClass = myNamespace["MyClass"]
 do
-	printf("%d\n", my_variable)
+	local rect = Rectangle()setWidth(5)setHeight(7)print("Total area:", getArea())
+	return 0
 end

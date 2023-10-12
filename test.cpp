@@ -1,19 +1,36 @@
 #include "src/rbx.h"
 
-namespace myNamespace {
-    int my_variable = 42;
-
-    void my_function() {
-        // Function code here
+// Base class
+class Shape {
+   public:
+    void setWidth(int w) {
+        width = w;
+    }
+    void setHeight(int h) {
+        height = h;
     }
 
-    class MyClass {
-        // Class code here
-    };
-}
+   protected:
+    int width;
+    int height;
+};
 
-using namespace myNamespace;
+// Derived class
+class Rectangle : public Shape {
+   public:
+    int getArea() {
+        return (width * height);
+    }
+};
 
 int main() {
-    printf("%d\n", my_variable);
+    Rectangle rect;
+
+    rect.setWidth(5);
+    rect.setHeight(7);
+
+    // Print the area of the object.
+    print("Total area:", rect.getArea());
+
+    return 0;
 }
