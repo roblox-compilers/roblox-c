@@ -35,11 +35,20 @@ bins = {
     "<=": "<=",
     ">=": ">=",
     "**":"^",
-    "]": " + 1] "
+    "]": " + 1] ",
+    "<<": "/C.bitlshift()*",
+    ">>": "/C.bitrshift()*",
+    "|": "/C.bor()*",
+    "&": "/C.band()*",
+    "^": "/C.bxor()*",
 }
 uns = {
     "++": {
         "v":" += 1",
+        "wrap": False,
+    },
+    "**": {
+        "v":"^",
         "wrap": False,
     },
     "--": {
@@ -482,7 +491,11 @@ class NodeVisitor(object):
         pass
     def visit_union_decl(self, node):
         tokens = list(node.get_tokens())
-        self.pushline("local " + tokens[1].spelling + " =")
+        if "unnamed" not in node.spelling:
+            self.pushline("local " + tokens[1].spelling + " =")
+        else:
+            self.pushline("local _UNNAMED =")
+            
         self.pushline("{")
         self.indent += 1
         for child in node.get_children():
@@ -500,7 +513,10 @@ class NodeVisitor(object):
             self.pushline(node.spelling + " = nil")
     def visit_struct_decl(self, node):
         tokens = list(node.get_tokens())
-        self.pushline("local " + tokens[1].spelling + " =")
+        if "unnamed" not in node.spelling:
+            self.pushline("local " + tokens[1].spelling + " =")
+        else:
+            self.pushline("local _UNNAMED =")
         self.pushline("{")
         self.indent += 1
         for child in node.get_children():

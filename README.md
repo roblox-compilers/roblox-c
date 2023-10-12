@@ -27,6 +27,7 @@ C and C++ to Luau compiler for Roblox.
 - Arrays
 - Indexing
 - switch (with fallthrough)
+- Binary operators (`<<`, `>>`, `|`, `&`)
 ### C++ with:
 - everything in C
 - classes
@@ -38,5 +39,7 @@ C and C++ to Luau compiler for Roblox.
 - inhertiance
 ## Todo
 - `->`
+- indexing
 - `this`
 - Roblox bindings 
+- structs in unions

@@ -27,6 +27,93 @@ function cast(type, value)
     end
 end
 
+-- BIT
+-- bit functions are like N1/C.bit*N2
+function band()
+    n1 = nil
+    n2 = nil
+    ins = {}
+    meta = {
+        __div = function(self, other)
+            n1 = other
+            return self
+        end,
+        __mul = function(self, other)
+            n2 = other
+            return bit.band(n1, n2)
+        end,
+    }
+    setmetatable(ins, meta)
+    return ins
+end
+function bxor()
+    n1 = nil
+    n2 = nil
+    ins = {}
+    meta = {
+        __div = function(self, other)
+            n1 = other
+            return self
+        end,
+        __mul = function(self, other)
+            n2 = other
+            return bit.bxor(n1, n2)
+        end,
+    }
+    setmetatable(ins, meta)
+    return ins
+end
+function bor()
+    n1 = nil
+    n2 = nil
+    ins = {}
+    meta = {
+        __div = function(self, other)
+            n1 = other
+            return self
+        end,
+        __mul = function(self, other)
+            n2 = other
+            return bit.bor(n1, n2)
+        end,
+    }
+    setmetatable(ins, meta)
+    return ins
+end
+function bitlshift()
+    n1 = nil
+    n2 = nil
+    ins = {}
+    meta = {
+        __div = function(self, other)
+            n1 = other
+            return self
+        end,
+        __mul = function(self, other)
+            n2 = other
+            return bit.lshift(n1, n2)
+        end,
+    }
+    setmetatable(ins, meta)
+    return ins
+end
+function bitrshift()
+    n1 = nil
+    n2 = nil
+    ins = {}
+    meta = {
+        __div = function(self, other)
+            n1 = other
+            return self
+        end,
+        __mul = function(self, other)
+            n2 = other
+            return bit.rshift(n1, n2)
+        end,
+    }
+    setmetatable(ins, meta)
+    return ins
+end
 -- SWITCH
 def = newproxy()
 brk = newproxy()
@@ -140,6 +227,11 @@ return {
     delete = delete,
     ptr = ptr,
     deref = deref,
+    band = band,
+    bxor = bxor,
+    bor = bor,
+    bitlshift = bitlshift,
+    bitrshift = bitrshift,
     
     -- STD
     malloc = malloc,
