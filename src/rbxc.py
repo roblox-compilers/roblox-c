@@ -671,11 +671,12 @@ def main():
         elif arg == "-h":
             hardcore = True
         elif arg == "-p":
-            if len(args) > 1:
+            try:
                 Config.set_library_file(args[i+1])
                 config("lclang", args[i+1])
                 skip = True
-            else:
+            except:
+                config("lclang", None)
                 error("no path specified")
                 sys.exit(1)
         elif arg == "-v":
