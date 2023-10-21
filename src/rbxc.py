@@ -708,8 +708,7 @@ def main():
         sys.exit(1)
         
     if "-s" in args:
-        with open(outputf, "w") as f:
-            f.write(crun.cruntime)
+        print(crun.cruntime)
         sys.exit(0)
     
     isC = None
