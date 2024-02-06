@@ -136,18 +136,41 @@ class NodeVisitor(object):
             self.namespaces = {}
 
     ### VISITORS ###
+    # CORE  
     def visit_translation_unit(self, node):
         self.ast = Chunk(Block([self.visit(child) for child in node.get_children()]))
+
+    # CONTROL FLOW
+    def visit_function_decl(self, node):
+        return LocalFunction(
+            name=node.spelling,
+            args=[],
+            body=Block([self.visit(child) for child in node.get_children()])
+        )
+    def visit_compound_stmt(self, node):
+        return Block([self.visit(child) for child in node.get_children()])
+    def visit_return_stmt(self, node):
+        print([self.visit(child) for child in node.get_children()][0])
+        return Return(values=[self.visit(child) for child in node.get_children()])
+    def visit_break_stmt(self, node):
+        return Break()
     
-    
+    # LITERALS
+    def visit_integer_literal(self, node):
+        return Number(n=node.spelling)
+    def visit_floating_literal(self, node):
+        return Number(n=node.spelling)
+    def visit_character_literal(self, node):
+        return String(s=node.spelling)
+    def visit_string_literal(self, node):
+        return String(s=node.spelling)
     ### NODESYSTEM ###
     def visit(self, node):
         method = 'visit_' + node.kind.name.lower()
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
     def generic_visit(self, node):
-        pass
-        #error(f"{node.kind.name.lower()} not implemented")
+        error(f"{node.kind.name.lower()} not implemented")
     def gen(self):
         return to_lua_source(self.ast)
 
