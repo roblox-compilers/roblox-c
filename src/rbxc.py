@@ -1,6 +1,5 @@
 import sys, os, json
 import crun
-
 #### LOG #####
 def error(msg):
     sys.stderr.write("\033[91;1merror\033[0m \033[90mC roblox-c:\033[0m " + msg + "\n")
@@ -22,6 +21,11 @@ try:
     from clang.cindex import Config
 except ImportError:
     error("libclang could not be resolved")
+
+try:
+    import luaparser
+except ImportError:
+    error("luaparser could not be resolved")
     
 #### COMPILER PARSER ####
 bins = {
@@ -112,9 +116,9 @@ def print_ast(node, depth=0):
 def test(file_path, c, flags):
     # Runs gcc on the file to check for errors, if there is an error sys.exit(1)
     if c:
-        iserrors = os.system("gcc -fsyntax-only -DRBXCHECK=1 " + " ".join(flags) + " " + file_path)
+        iserrors = os.system("gcc -fsyntax-only -D__RCC__=1 " + " ".join(flags) + " " + file_path)
     else:
-        iserrors = os.system("g++ -fsyntax-only -DRBXCHECK=1 " + " ".join(flags) + " " + file_path)
+        iserrors = os.system("g++ -fsyntax-only -D__RCC__=1 " + " ".join(flags) + " " + file_path)
     if iserrors != 0:
         sys.exit(1)
 
@@ -726,8 +730,9 @@ def main():
     Engine = NodeVisitor(isC)
     Engine.visit(parsed)
     Engine.clean()
+    Enginecode = Engine.gen()
     with open(outputf, "w") as f:
-        code = (HEADER + gen(Engine.code) + Engine.code)
+        code = (HEADER + gen(Enginecode) + Enginecode)
         if hardcore:
             code = "xpcall(function() -- hardcore mode\n" + code + "\nend, function(err) -- hardcore mode\n\terror('Segmenation fault: 11') -- hardcore mode\nend) -- hardcore mode"
             

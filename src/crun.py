@@ -216,7 +216,9 @@ end
 function deref(ptr)
     return _G.CMemory[ptr]
 end
-
+function concat(str, str2)
+    return str .. str2
+end
 
 
 return {
@@ -244,6 +246,7 @@ return {
     memcmp = memcmp,
     memchr = memchr,
     printf = function(str, ...) print(str:format(...)) end,
+    concat = concat,
     
     -- CONSTANTS
     construct = construct,
